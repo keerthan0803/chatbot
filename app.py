@@ -36,9 +36,9 @@ def handle_submit():
         response = chat_with_gemini(history)
         return jsonify({'response': response})
     except Exception as e:
-        # Always return JSON, even on error
         return jsonify({'response': f"Error: {str(e)}"})
-
+        
 if __name__ == '__main__':
 
     app.run(debug=True)
+
