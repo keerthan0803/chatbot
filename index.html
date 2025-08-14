@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #6d0303 0%, #f4f4f4 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .page-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #333;
+            margin-top: 30px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 8px #e0e7ff;
+        }
+        #conversation {
+            max-width: 600px;
+            margin: 20px auto 80px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+            min-height: 200px;
+            background: #fafafa;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            overflow-y: auto;
+        }
+        .input-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: #fff;
+            padding: 10px 0;
+            box-shadow: 0 -2px 8px #eee;
+            display: flex;
+            justify-content: center;
+            z-index: 10;
+        }
+        #inputBox {
+            width: 60%;
+            padding: 8px;
+            font-size: 16px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        #inputBox:focus {
+            border-color: #007bff;
+        }
+        .input-bar button {
+            padding: 8px 16px;
+            font-size: 16px;
+            margin-left: 8px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .input-bar button:hover {
+            background: #0056b3;
+        }
+        .user-msg {
+            text-align: right;
+            color: #007bff;
+        }
+        .bot-msg {
+            text-align: left;
+            color: #28a745;
+        }
+        @media (max-width: 700px) {
+            #conversation {
+                max-width: 98vw;
+                margin: 10px 1vw 80px 1vw;
+            }
+            #inputBox {
+                width: 70%;
+            }
+        }
+        @media (max-width: 500px) {
+            #conversation {
+                margin: 5px 1vw 80px 1vw;
+                min-height: 120px;
+                font-size: 15px;
+            }
+            #inputBox {
+                width: 60%;
+                font-size: 15px;
+            }
+            .input-bar button {
+                font-size: 15px;
+                padding: 8px 10px;
+            }
+        }
+        .loader {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 3px solid #ccc;
+            border-top: 3px solid #333;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-title">Chatbot</div>
+    <div id="conversation"></div>
+    <div class="input-bar">
+        <input type="text" id="inputBox" placeholder="Type your message..." onkeydown="if(event.key==='Enter'){sendToPython();}">
+        <button onclick="sendToPython()">Send</button>
+    </div>
+    <script>
+        const conversation = document.getElementById('conversation');
+        let history = [];
+        function appendMessage(sender, text, id) {
+            const msgDiv = document.createElement('div');
+            msgDiv.style.margin = '10px 0';
+            msgDiv.className = sender === 'You' ? 'user-msg' : 'bot-msg';
+            msgDiv.innerHTML = `<b>${sender}:</b> <span id="${id||''}">${text}</span>`;
+            conversation.appendChild(msgDiv);
+            conversation.scrollTop = conversation.scrollHeight;
+        }
+        function sendToPython() {
+            const inputBox = document.getElementById('inputBox');
+            const value = inputBox.value.trim();
+            if (!value) return;
+            appendMessage('You', value);
+            history.push({ role: 'user', content: value });
+            inputBox.value = '';
+            // Add bot loading message
+            const botMsgId = 'botmsg-' + Date.now();
+            appendMessage('Bot', '<span class="loader"></span>', botMsgId);
+            fetch('/api/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const botMsg = document.getElementById(botMsgId);
+                if (botMsg) botMsg.innerText = data.response;
+                history.push({ role: 'bot', content: data.response });
+            })
+            .catch(error => {
+                const botMsg = document.getElementById(botMsgId);
+                if (botMsg) botMsg.innerText = 'Error: ' + error;
+            });
+        }
+    </script>
+</body>
+</html>
