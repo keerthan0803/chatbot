@@ -20,9 +20,7 @@ def init_db():
         )
     """)
     conn.commit()
-    conn.close()
-
-init_db()
+    conn.close(
 
 def chat_with_gemini(prompt):
     model = genai.GenerativeModel("gemini-1.5-flash")
