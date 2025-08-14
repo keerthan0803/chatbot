@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        h2 {
+            margin-top: 30px;
+            color: #333;
+        }
+        #chat-box {
+            width: 350px;
+            height: 400px;
+            background: #fff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin: 20px 0;
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        #chat-box p {
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+        #user-input {
+            width: 260px;
+            padding: 10px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 18px;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .user {
+            color: #007bff;
+        }
+        .bot {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <h2>Chatbot</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="user-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter'){sendMessage();}">
+    <button onclick="sendMessage()">Send</button>
+    <script>
+        function sendMessage() {
+            let userInput = document.getElementById("user-input").value.trim();
+            if (!userInput) return;
+            fetch("/get_response", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: userInput })
+            })
+            .then(response => response.json())
+            .then(data =>{
+                let chatBox = document.getElementById("chat-box");
+                chatBox.innerHTML += `<p class="user"><b>You:</b> ${userInput}</p>`;
+                chatBox.innerHTML += `<p class="bot"><b>Bot:</b> ${data.response}</p>`;
+                document.getElementById("user-input").value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+        }
+    </script>
+</body>
+</html>
