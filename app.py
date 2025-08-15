@@ -29,16 +29,10 @@ def serve_index():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'index.html')
 @app.route('/api/submit', methods=['POST'])
 def handle_submit():
-    try:
-        data = request.get_json()
-        history = data.get('history', [])
-        response = chat_with_gemini(history)
-        return jsonify({'response': response})
-    except Exception as e:
-        # Always return JSON, even on error
-        return jsonify({'response': f"Error: {str(e)}"})
+    data = request.get_json()
+    history = data.get('history', [])
+    response = chat_with_gemini(history)
+    return jsonify({'response': response})
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
+    app.run(debug=True)
