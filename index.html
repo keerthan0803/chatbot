@@ -1,180 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="fav.ico">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Chatbot</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1500&q=80') no-repeat center center fixed;
-            background-size: cover;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
+        :root{
+            --bg: #f6f8fb;
+            --panel: #ffffff;
+            --accent: #1f6feb;
+            --user-bg: #e7f0ff;
+            --bot-bg: #f1f7ef;
+            --muted: #6b7280;
         }
-        .page-title {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-            color: #333;
-            margin-top: 30px;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 8px #e0e7ff;
+        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;background:var(--bg);color:#0f172a}
+        .app{
+            min-height:100%;display:flex;align-items:stretch;justify-content:center;padding:24px;box-sizing:border-box
         }
-        
-        #conversation {
-            width: 50vw;
-            max-width: 700px;
-            min-width: 320px;
-            min-height: 500px;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 12px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-            padding: 24px;
-            margin: 0 auto;
-            overflow-y: auto;
-            max-height: 60vh;
-            box-sizing: border-box;
-            border: none;
+        .chat-panel{
+            width:100%;max-width:900px;background:var(--panel);border-radius:12px;box-shadow:0 6px 24px rgba(15,23,42,0.08);display:flex;flex-direction:column;overflow:hidden;
         }
-        .input-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            padding: 15px 0;
-            display: flex;
-            justify-content: center;
-            z-index: 10;
-        }
-        .input-bar-inner {
-            width: 80vw;
-            max-width: 800px;
-            display: flex;
-            justify-content: center;
-        }
-        #inputBox {
-            flex: 1;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #bbb;
-            border-radius: 5px;
-            outline: none;
-            transition: border 0.2s;
-            margin-right: 8px;
-        }
-        #inputBox:focus {
-            border-color: #007bff;
-        }
-        .input-bar button {
-            padding: 10px 24px;
-            font-size: 16px;
-            background: #007bff;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .input-bar button:hover {
-            background: #0056b3;
-        }
-        .user-msg {
-            text-align: right;
-            color: #007bff;
-        }
-        .bot-msg {
-            text-align: left;
-            color: #28a745;
-        }
-        @media (max-width: 900px) {
-            #conversation {
-                padding: 20px 2vw 20px 2vw;
-            }
-            .input-bar-inner {
-                width: 96vw;
-                max-width: 96vw;
-            }
-        }
-        @media (max-width: 500px) {
-            #conversation {
-                min-height: 200px;
-                font-size: 15px;
-                padding: 10px 1vw 10px 1vw;
-            }
-            .input-bar-inner {
-                width: 98vw;
-                max-width: 98vw;
-            }
-            #inputBox {
-                font-size: 15px;
-            }
-            .input-bar button {
-                font-size: 15px;
-                padding: 10px 10px;
-            }
-        }
-        .loader {
-            display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 3px solid #ccc;
-            border-top: 3px solid #333;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            vertical-align: middle;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .chat-header{padding:18px 20px;border-bottom:1px solid #eef2f7;display:flex;align-items:center;gap:12px}
+        .chat-title{font-weight:600;font-size:1.05rem}
+        #conversation{flex:1;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+        .message{max-width:78%;padding:12px 14px;border-radius:12px;line-height:1.4;box-shadow:0 1px 0 rgba(0,0,0,0.02)}
+        .message.user{align-self:flex-end;background:var(--user-bg);border-bottom-right-radius:6px}
+        .message.bot{align-self:flex-start;background:var(--bot-bg);border-bottom-left-radius:6px}
+        .meta{font-size:0.82rem;color:var(--muted);margin-bottom:6px}
+        .input-area{padding:12px;border-top:1px solid #eef2f7;display:flex;gap:8px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.01))}
+        .input-area input{flex:1;padding:12px 14px;border-radius:8px;border:1px solid #e6edf3;font-size:1rem;outline:none}
+        .input-area button{padding:10px 16px;background:var(--accent);border:none;color:white;border-radius:8px;cursor:pointer}
+        .input-area button:active{transform:translateY(1px)}
+        .loader{display:inline-block;width:16px;height:16px;border:3px solid #d1d5db;border-top:3px solid #111;border-radius:50%;animation:spin 1s linear infinite}
+        @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+
+        /* Responsive tweaks */
+        @media (max-width:600px){
+            .chat-panel{border-radius:8px}
+            .message{max-width:92%}
         }
     </style>
 </head>
 <body>
-    <div class="page-title">Chatbot</div>
-    <div id="conversation"></div>
-    <div class="input-bar">
-        <div class="input-bar-inner">
-            <input type="text" id="inputBox" placeholder="Type your message..." onkeydown="if(event.key==='Enter'){sendToPython();}">
-            <button onclick="sendToPython()">Send</button>
+    <div class="app">
+        <div class="chat-panel" role="main" aria-label="Chat interface">
+            <div class="chat-header">
+                <div class="chat-title">Chatbot</div>
+                <div style="margin-left:auto;font-size:.9rem;color:var(--muted)">Responsive UI</div>
+            </div>
+            <div id="conversation" aria-live="polite"></div>
+            <div class="input-area">
+                <input id="inputBox" type="text" placeholder="Type your message..." aria-label="Message input" onkeydown="if(event.key==='Enter'){sendToPython();}">
+                <button onclick="sendToPython()" aria-label="Send">Send</button>
+            </div>
         </div>
     </div>
+
     <script>
         const conversation = document.getElementById('conversation');
         let history = [];
-        function appendMessage(sender, text, id) {
-            const msgDiv = document.createElement('div');
-            msgDiv.style.margin = '10px 0';
-            msgDiv.className = sender === 'You' ? 'user-msg' : 'bot-msg';
-            msgDiv.innerHTML = `<b>${sender}:</b> <span id="${id||''}">${text}</span>`;
-            conversation.appendChild(msgDiv);
+
+        function formatMessage(sender, text){
+            const wrapper = document.createElement('div');
+            wrapper.className = 'message ' + (sender === 'You' ? 'user' : 'bot');
+            const meta = document.createElement('div');
+            meta.className = 'meta';
+            meta.textContent = sender;
+            const body = document.createElement('div');
+            body.className = 'body';
+            body.innerText = text;
+            wrapper.appendChild(meta);
+            wrapper.appendChild(body);
+            return wrapper;
+        }
+
+        function appendMessage(sender, text, id){
+            // if id provided, create placeholder then later update
+            if(id){
+                const placeholder = formatMessage(sender, '');
+                placeholder.querySelector('.body').id = id;
+                conversation.appendChild(placeholder);
+                conversation.scrollTop = conversation.scrollHeight;
+                return;
+            }
+            const el = formatMessage(sender, text);
+            conversation.appendChild(el);
             conversation.scrollTop = conversation.scrollHeight;
         }
-        function sendToPython() {
+
+        function sendToPython(){
             const inputBox = document.getElementById('inputBox');
             const value = inputBox.value.trim();
-            if (!value) return;
+            if(!value) return;
             appendMessage('You', value);
             history.push({ role: 'user', content: value });
             inputBox.value = '';
-            // Add bot loading message
+
+            // placeholder for bot
             const botMsgId = 'botmsg-' + Date.now();
-            appendMessage('Bot', '<span class="loader"></span>', botMsgId);
-            fetch('/api/submit', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            appendMessage('Bot', '', botMsgId);
+            const botBody = document.getElementById(botMsgId);
+            if(botBody) botBody.innerHTML = '<span class="loader" aria-hidden="true"></span>';
+
+            fetch('/api/submit',{
+                method:'POST',
+                headers:{'Content-Type':'application/json'},
                 body: JSON.stringify({ history })
+            }).then(async r => {
+                // Read raw text first so we can handle non-JSON responses or empty bodies
+                const text = await r.text();
+                if (!r.ok) {
+                    // If server returned an error, surface the body or status
+                    throw new Error(text || ('Request failed: ' + r.status));
+                }
+                try {
+                    return text ? JSON.parse(text) : { error: 'Empty response from server' };
+                } catch (parseErr) {
+                    throw new Error('Invalid JSON response: ' + text);
+                }
             })
-            .then(response => response.json())
             .then(data => {
-                const botMsg = document.getElementById(botMsgId);
-                if (botMsg) botMsg.innerText = data.response;
-                history.push({ role: 'bot', content: data.response });
-            })
-            .catch(error => {
-                const botMsg = document.getElementById(botMsgId);
-                if (botMsg) botMsg.innerText = 'Error: ' + error;
+                const botBody = document.getElementById(botMsgId);
+                if (botBody) {
+                    if (data && data.response) {
+                        botBody.innerText = data.response;
+                        history.push({ role: 'bot', content: data.response });
+                    } else if (data && data.error) {
+                        botBody.innerText = 'Error: ' + (data.detail || data.error);
+                    } else {
+                        botBody.innerText = 'Error: Unexpected response format';
+                    }
+                }
+            }).catch(err => {
+                const botBody = document.getElementById(botMsgId);
+                if (botBody) botBody.innerText = 'Error: ' + (err && err.message ? err.message : err);
             });
         }
     </script>
