@@ -13,7 +13,22 @@
             --bot-bg: #f1f7ef;
             --muted: #6b7280;
         }
-        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;background:var(--bg);color:#0f172a}
+        html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Arial,Helvetica,sans-serif;color:#0f172a}
+        /* Subtle layered background: soft gradient + faint dot pattern for depth */
+        body {
+            background: linear-gradient(135deg, #f0f6ff 0%, #f9fbff 100%);
+            background-attachment: fixed;
+        }
+        /* faint repeating dots using radial-gradient */
+        body::before{
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: radial-gradient(rgba(15,23,42,0.03) 1px, transparent 1px);
+            background-size: 18px 18px;
+            opacity: 0.9;
+        }
         .app{
             min-height:100%;display:flex;align-items:stretch;justify-content:center;padding:24px;box-sizing:border-box
         }
@@ -29,7 +44,14 @@
         .meta{font-size:0.82rem;color:var(--muted);margin-bottom:6px}
         .input-area{padding:12px;border-top:1px solid #eef2f7;display:flex;gap:8px;background:linear-gradient(180deg,transparent,rgba(0,0,0,0.01))}
         .input-area input{flex:1;padding:12px 14px;border-radius:8px;border:1px solid #e6edf3;font-size:1rem;outline:none}
-        .input-area button{padding:10px 16px;background:var(--accent);border:none;color:white;border-radius:8px;cursor:pointer}
+        .input-area button{padding:10px 16px;background:var(--accent);border:none;color:white;border-radius:8px;cursor:pointer;transition:background 160ms ease, transform 80ms ease}
+        /* Hover and focus states for better affordance */
+        .input-area button:hover,
+        .input-area button:focus{
+            background:#1558c7; /* slightly darker accent */
+            outline: none;
+            transform: translateY(-1px);
+        }
         .input-area button:active{transform:translateY(1px)}
         .loader{display:inline-block;width:16px;height:16px;border:3px solid #d1d5db;border-top:3px solid #111;border-radius:50%;animation:spin 1s linear infinite}
         @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
